@@ -1,0 +1,68 @@
+/* General Styles */
+.App {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 20px;
+  padding-top: 20px;
+  background-color: #282c34;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+/* DataGrid Styles */
+.data-grid {
+  background-color: #1e1e1e; /* Dark background for the grid */
+  border: none; /* Remove default border */
+}
+
+.data-grid .MuiDataGrid-cell {
+  color: white; /* Text color for cells */
+  background-color: #1e1e1e; /* Dark background for cells */
+}
+
+.data-grid .MuiDataGrid-headerCell {
+  background-color: #3c3c3c; /* Darker header background */
+  color: white; /* Header text color */
+  border-bottom: 1px solid #444; /* Border between header and body */
+}
+
+.data-grid .MuiDataGrid-footerCell {
+  background-color: #3c3c3c; /* Darker footer background */
+  color: white; /* Footer text color */
+}
+
+/* Animation */
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
