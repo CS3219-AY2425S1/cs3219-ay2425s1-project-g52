@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "G52 Peerprep",
+  "name": "Collaborative Peer Platform for Technical Interviews",
   "icons": [
     {
       "src": "favicon.ico",
