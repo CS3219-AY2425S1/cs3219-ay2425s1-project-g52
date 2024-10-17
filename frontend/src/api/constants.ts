@@ -11,4 +11,5 @@ const api = ky.extend({
   },
 });
 
-export default api;
+const userServiceApi = process.env.REACT_APP_USER_SERVICE_BASE_URL;
+export { api, userServiceApi };

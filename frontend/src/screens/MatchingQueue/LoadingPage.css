@@ -1,0 +1,175 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+.loading-page {
+  background-color: #000;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  text-align: center;
+}
+
+.content {
+  max-width: 800px;
+  width: 90%;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-text {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #ffffff;
+  margin-bottom: 20px;
+  text-align: center;
+  animation: slideIn 1.5s ease-out forwards;
+}
+
+@keyframes slideIn {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.magnifying-glass-wrapper {
+  margin-bottom: 20px;
+}
+
+.progress-container {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+progress {
+  width: 100%;
+  max-width: 500px;
+  height: 20px;
+  appearance: none;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #444;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+progress::-webkit-progress-bar {
+  background-color: #333;
+}
+
+progress::-webkit-progress-value {
+  background-color: #fff;
+  border-radius: 10px;
+  animation: progressAnimation 1s ease-in-out infinite;
+}
+
+progress::-moz-progress-bar {
+  background-color: #fff;
+  border-radius: 10px;
+  animation: progressAnimation 1s ease-in-out infinite;
+}
+
+.pro-tip {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-size: 1.2rem;
+  color: #c0efff;
+  text-align: center;
+}
+
+.pro-tip h2 {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.pro-tip p {
+  font-style: italic;
+  margin-top: 10px;
+}
+
+.cancel-button {
+  background-color: #ff4c4c;
+  color: white;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  margin-top: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.cancel-button:hover {
+  background-color: #ff8800;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes progressAnimation {
+  0% {
+    background-color: #fff;
+    box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #fff;
+  }
+  50% {
+    background-color: #c0efff;
+    box-shadow: 0 0 10px #c0efff, 0 0 20px #c0efff, 0 0 30px #c0efff;
+  }
+  100% {
+    background-color: #fff;
+    box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #fff;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-text {
+    font-size: 1.5rem;
+  }
+
+  .pro-tip {
+    font-size: 1rem;
+  }
+
+  .pro-tip h2 {
+    font-size: 1.2rem;
+  }
+
+  .pro-tip p {
+    font-size: 0.9rem;
+  }
+
+  .cancel-button {
+    font-size: 1rem;
+    padding: 8px 16px;
+  }
+
+  progress {
+    height: 15px;
+  }
+
+  .content {
+    padding: 10px;
+  }
+
+  .magnifying-glass-wrapper {
+    margin-bottom: 15px;
+  }
+}
