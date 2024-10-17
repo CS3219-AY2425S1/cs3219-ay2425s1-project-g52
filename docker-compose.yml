@@ -15,7 +15,7 @@ services:
   user-service:
     build: ./backend/user-service # Path to the directory containing the Dockerfile for building the backend/user-service image.
     ports:
-      - 3001:3001 # Maps port 4000 on the host to port 4000 in the container, making the app accessible on the host.
+      - 3001:3001 # Maps port 3001 on the host to port 3001 in the container, making the app accessible on the host.
     env_file:
       - ./backend/user-service/.env
     # volumes: # Not necessarily needed for now
@@ -24,7 +24,7 @@ services:
   question-service:
     build: ./backend/question-service # Path to the directory containing the Dockerfile for building the backend/question-service image.
     ports:
-      - 8000:8000 # Maps port 4000 on the host to port 4000 in the container, making the app accessible on the host.
+      - 8000:8000 # Maps port 8000 on the host to port 8000 in the container, making the app accessible on the host.
     env_file:
       - ./backend/question-service/.env
     # volumes: # Not necessarily needed for now
