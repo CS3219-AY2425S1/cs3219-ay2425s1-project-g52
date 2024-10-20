@@ -112,13 +112,23 @@ const LoadingPage: React.FC = () => {
     }
   };
 
-  const handleDialogClose = () => {
-    setDialogOpen(false);
+  const handleDialogClose = async () => {
+    if (intervalIdRef.current) clearInterval(intervalIdRef.current);
+    setProgress(0);
+
+    try {
+      await fetch(`http://localhost:3002/match/${userId}`, {
+        method: "DELETE",
+      });
+    } catch (error) {
+      console.error("Error cancelling matching request:", error);
+    }
+
     navigate("/topicsPage", { state: { username: userId } });
   };
 
   const handleContinue = () => {
-    navigate("/topicsPage", { state: { userId } });
+    navigate("/questionsPage", { state: { userId } });
   };
 
   return (
@@ -158,7 +168,7 @@ const LoadingPage: React.FC = () => {
           <MatchSuccessDialog
             open={matchSuccess}
             onClose={() =>
-              navigate("/questionsPage", { state: { username: userId } })
+              navigate("/topicsPage", { state: { username: userId } })
             }
             onContinue={handleContinue}
           />
