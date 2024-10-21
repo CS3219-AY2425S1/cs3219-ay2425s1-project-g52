@@ -1,155 +1,87 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { connectMongoDB, connectRabbitMQ, getChannel } from "./connections.js";
-import {
-  addUser,
-  getMatchQueue,
-  removeUser,
-  initializeMatchQueue,
-} from "./matchQueue.js";
-import { initializeWebSocketServer, notifyUser } from "./websocket.js";
+import { connectRabbitMQ, getChannel } from "./connections.js";
+import { initializeMatchQueue, addUser, checkForMatches, requeueUser, removeUserFromAllQueues } from "./matchQueue.js";
+import { initializeWebSocketServer } from "./websocket.js";
+import { TOPICS, DIFFICULTIES } from './constants/constants.js';
+
 
 dotenv.config();
 
 const app = express();
-let channel;
-
 app.use(express.json());
 app.use(cors());
 
-app.use((req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  next();
-});
-
 const PORT = process.env.MATCHING_SERVICE_PORT || 3002;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+initializeWebSocketServer(process.env.WEBSOCKET_PORT || 8080);
 
 const initialize = async () => {
   try {
-    await connectMongoDB();
     await connectRabbitMQ();
-    channel = getChannel();
-    await initializeMatchQueue();
-    await processMatchRequests();
+    const channel = getChannel();
+    await initializeMatchQueue(channel);
     console.log("All services initialized successfully");
+    await processMatchRequests(channel);
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
   } catch (error) {
     console.error("Error during initialization:", error);
+    process.exit(1);
+  }
+};
+
+const processMatchRequests = async (channel) => {
+
+  channel.prefetch(1);
+
+  for (const topic of TOPICS) {
+    const queueName = `${topic}_queue`;
+    await channel.consume(queueName, async (request) => {
+      if (request) {
+        const matchRequest = JSON.parse(request.content.toString());
+        console.log(`Received match request: ${JSON.stringify(matchRequest)}`);
+        
+        const matched = await checkForMatches(matchRequest, topic, channel, DIFFICULTIES);
+        if (matched) {
+          channel.ack(request);
+        } else {
+          console.log(`No match found for ${matchRequest.userId} in ${queueName}`);
+          await requeueUser(matchRequest, channel);
+          channel.ack(request);
+        }
+      }
+    }, { noAck: false });
   }
 };
 
 initialize();
 
-initializeWebSocketServer(process.env.WEBSOCKET_PORT || 8080);
-
-const meetHardMatchingCriteria = (user1, user2) => {
-  return (
-    user1.topic === user2.topic &&
-    user1.difficulty === user2.difficulty &&
-    user1.userId !== user2.userId
-  );
-};
-
-const meetSoftMatchingCriteria = (user1, user2) => {
-  return user1.topic === user2.topic && user1.userId !== user2.userId;
-};
-
-const processMatchRequests = async () => {
-  await channel.consume("match_requests", async (request) => {
-    if (request !== null) {
-      const matchRequest = JSON.parse(request.content.toString());
-      
-      const matchQueue = await getMatchQueue();
-      let matched = false;
-      console.log("Queue status before match is formed:", matchQueue);
-      for (let i = 0; i < matchQueue.length; i++) {
-        if (meetHardMatchingCriteria(matchQueue[i], matchRequest)) {
-          const user1 = matchQueue[i];
-          const user2 = matchRequest;
-          await removeUser(user1.userId);
-          await removeUser(user2.userId);
-          notifyUser(user1.userId, "matched");
-          notifyUser(user2.userId, "matched");
-          matched = true;
-          break;
-        }
-      }
-
-      if (!matched) {
-        for (let i = 0; i < matchQueue.length; i++) {
-          if (meetSoftMatchingCriteria(matchQueue[i], matchRequest)) {
-            const user1 = matchQueue[i];
-            const user2 = matchRequest;
-            await removeUser(user1.userId);
-            await removeUser(user2.userId);
-            notifyUser(user1.userId, "matched");
-            notifyUser(user2.userId, "matched");
-            matched = true;
-            break;
-          }
-        }
-        if (matched) {
-          console.log("Queue status after match is formed:", await getMatchQueue());
-        }
-
-        
-        channel.ack(request);
-      }
-    }
-  });
-
-  await channel.consume("notifications", async (msg) => {
-    if (msg !== null) {
-      const notification = JSON.parse(msg.content.toString());
-      notifyUser(notification.userId, notification.status);
-      channel.ack(msg);
-    }
-  });
-};
-
 app.post("/match", async (req, res) => {
-  console.log("Received /match request:", req.body);
+  console.log("Received user data:", req.body);
   const user = req.body;
   try {
-    const result = await addUser(user);
-    if (result.error) {
-      console.error("Error adding user:", result.error);
-      res.status(400).send(result.error);
-    } else {
-      channel.sendToQueue("match_requests", Buffer.from(JSON.stringify(user)));
-      console.log(
-        "User added successfully and match request sent:",
-        result.success
-      );
-      res.status(200).send(result.success);
-    }
+    await addUser(user);
+    res.status(200).send("User added to match queue");
   } catch (error) {
-    console.error("Exception occurred:", error);
-    res.status(500).send("Internal Server Error");
-  }
-});
-
-app.get("/queue", async (req, res) => {
-  console.log("Received /queue request");
-  try {
-    const queueStatus = await getMatchQueue();
-    res.status(200).send(queueStatus);
-  } catch (error) {
-    console.error("Exception occurred:", error);
-    res.status(500).send("Internal Server Error");
+    console.error("Error adding user:", error);
+    res.status(400).send(error.message);
   }
 });
 
 app.delete("/match/:userId", async (req, res) => {
-  const userId = req.params.userId;
+  const { userId } = req.params;
+  const { topic, difficulty } = req.body;
+
+  console.log(`Received DELETE request for userId: ${userId}, topic: ${topic}, difficulty: ${difficulty}`);
+
   try {
-    await removeUser(userId);
-    res.status(200).send(`User ${userId} removed from matching queue`);
+    const channel = await getChannel();
+    await removeUserFromAllQueues(userId, topic, difficulty, channel);
+    res.status(200).send(`User ${userId} removed from all queues`);
   } catch (error) {
-    console.error("Error removing user:", error);
+    console.error("Error removing user from queues:", error);
     res.status(500).send("Internal Server Error");
   }
 });
