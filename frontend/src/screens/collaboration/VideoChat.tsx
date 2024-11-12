@@ -16,6 +16,7 @@ interface VideoChatProps {
   width: number;
   height: number;
   savedLines: any;
+  endSession: boolean;
   setSavedLines: React.Dispatch<React.SetStateAction<any>>;
 }
 
@@ -26,6 +27,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
   width,
   height,
   savedLines,
+  endSession,
   setSavedLines,
 }) => {
   const [peerId, setPeerId] = useState<string>("");
@@ -40,6 +42,21 @@ const VideoChat: React.FC<VideoChatProps> = ({
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const [showWhiteboard, setShowWhiteboard] = useState<boolean>(false);
 
+  useEffect(() => {
+    socket.on("endSession", () => {
+      if (isCameraOn && mediaStreamRef.current) {
+        const videoTrack = mediaStreamRef.current.getVideoTracks()[0];
+        if (videoTrack) {
+          console.log("Stopping video track");
+          videoTrack.stop();
+        }
+      }
+    });
+
+    return () => {
+      socket.off("endSession");
+    };
+  }, [socket]);
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       // Custom logic before the tab is closed or refreshed
