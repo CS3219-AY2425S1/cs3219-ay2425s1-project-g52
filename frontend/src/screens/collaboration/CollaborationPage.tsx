@@ -3,10 +3,10 @@ import CodeEditor from "./CodeEditor";
 import { useRef, useEffect, useState } from "react";
 import io from "socket.io-client";
 import { useLocation, useNavigate } from "react-router-dom";
-import ReactMarkdown from 'react-markdown';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
-import 'katex/dist/katex.min.css';  // Import KaTeX styles for LaTeX rendering
+import ReactMarkdown from "react-markdown";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css"; // Import KaTeX styles for LaTeX rendering
 import ChatBox from "./Chatbox";
 import VideoChat from "./VideoChat";
 import GeminiAIQuery from "./GeminiAIQuery";
@@ -25,6 +25,7 @@ const CollaborationPage = () => {
   const navigate = useNavigate();
   const [codeContents, setCodeContents] = useState("");
   const [savedLines, setSavedLines] = useState([]); // New state to save lines
+  const [endSession, setEndSession] = useState(false);
 
   useEffect(() => {
     if (socket) {
@@ -60,7 +61,9 @@ const CollaborationPage = () => {
     console.log("im here");
     socket.on("partnerDisconnect", () => {
       console.log("friend left");
-      setUsersInRoom((prevUsers) => prevUsers.filter((user) => user === username));
+      setUsersInRoom((prevUsers) =>
+        prevUsers.filter((user) => user === username)
+      );
     });
 
     return () => {
@@ -70,16 +73,18 @@ const CollaborationPage = () => {
 
   useEffect(() => {
     socket.on("endSession", () => {
+      setEndSession(true);
       alert("The session has been ended.");
       navigate("/landingPage");
     });
-  
+
     return () => {
       socket.off("endSession");
     };
   }, [socket]);
 
   const handleEndSession = () => {
+    setEndSession(true);
     socket.emit("endSession", roomId, codeContents, savedLines);
   };
 
@@ -125,18 +130,15 @@ const CollaborationPage = () => {
               remarkPlugins={[remarkMath]}
               rehypePlugins={[rehypeKatex]}
             >
-              {question.qDescription || 'Error Displaying Question Description...'}
+              {question.qDescription ||
+                "Error Displaying Question Description..."}
             </ReactMarkdown>
           </Box>
         </Typography>
-        
       </Box>
 
       <Box>
-        <GeminiAIQuery 
-          question={question}
-          codeContext={codeContents}
-          />
+        <GeminiAIQuery question={question} codeContext={codeContents} />
       </Box>
 
       <Box
@@ -146,7 +148,7 @@ const CollaborationPage = () => {
           height: "100vh",
         }}
       >
-  {/* Left side with the CodeEditor */}
+        {/* Left side with the CodeEditor */}
         <Box
           sx={{
             flex: 1,
@@ -156,10 +158,9 @@ const CollaborationPage = () => {
           }}
         >
           <CodeEditor roomId={roomId} setCodeContents={setCodeContents} />
-
         </Box>
 
-    {/* right side */}
+        {/* right side */}
         <Box
           sx={{
             flex: 3,
@@ -169,7 +170,6 @@ const CollaborationPage = () => {
             position: "relative",
           }}
         >
-
           <Box
             sx={{
               display: "flex",
@@ -182,15 +182,18 @@ const CollaborationPage = () => {
             }}
           >
             {/* Display users in the room */}
-            <Box sx={{ display: "flex", flexDirection: "column", color: "white" }}>
+            <Box
+              sx={{ display: "flex", flexDirection: "column", color: "white" }}
+            >
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
                 Participants
               </Typography>
-              {usersInRoom && usersInRoom.map((user: string) => (
-                <Typography key={user} variant="body2" sx={{ color: "gray" }}>
-                  {user}
-                </Typography>
-              ))}
+              {usersInRoom &&
+                usersInRoom.map((user: string) => (
+                  <Typography key={user} variant="body2" sx={{ color: "gray" }}>
+                    {user}
+                  </Typography>
+                ))}
             </Box>
 
             {/* End session button */}
@@ -223,6 +226,7 @@ const CollaborationPage = () => {
               height={whiteboardSize.height}
               savedLines={savedLines}
               setSavedLines={setSavedLines}
+              endSession={endSession}
             />
           </Box>
 
