@@ -44,11 +44,19 @@ const VideoChat: React.FC<VideoChatProps> = ({
 
   useEffect(() => {
     socket.on("endSession", () => {
-      if (isCameraOn && mediaStreamRef.current) {
+      if (mediaStreamRef.current) {
+        // Stop the video track
         const videoTrack = mediaStreamRef.current.getVideoTracks()[0];
         if (videoTrack) {
           console.log("Stopping video track");
           videoTrack.stop();
+        }
+
+        // Stop the audio track
+        const audioTrack = mediaStreamRef.current.getAudioTracks()[0];
+        if (audioTrack) {
+          console.log("Stopping audio track");
+          audioTrack.stop();
         }
       }
     });
@@ -57,6 +65,7 @@ const VideoChat: React.FC<VideoChatProps> = ({
       socket.off("endSession");
     };
   }, [socket]);
+
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
       // Custom logic before the tab is closed or refreshed
