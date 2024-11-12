@@ -41,6 +41,20 @@ const VideoChat: React.FC<VideoChatProps> = ({
   const [showWhiteboard, setShowWhiteboard] = useState<boolean>(false);
 
   useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      // Custom logic before the tab is closed or refreshed
+      socket.emit("userLeft", { username, roomId });
+      event.returnValue = ""; // Some browsers require setting this
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [socket, username, roomId]);
+
+  useEffect(() => {
     // Listen for the "roomFull" event from the backend
     socket.on(
       "roomFull",
@@ -57,9 +71,17 @@ const VideoChat: React.FC<VideoChatProps> = ({
       }
     );
 
+    // Listen for "userLeft" event
+    socket.on("userLeft", (data: { username: string }) => {
+      const { username: leftUsername } = data;
+      console.log("User left:", data);
+      setCanStartCall(false); // Set not ready to call
+    });
+
     // Cleanup on component unmount
     return () => {
       socket.off("roomFull");
+      socket.off("userLeft");
     };
   }, [socket, username]);
 
