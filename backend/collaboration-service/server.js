@@ -59,22 +59,25 @@ server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 // Save initial attempt history
 const saveAttemptHistory = async (attemptData) => {
   try {
-    await axios.post('http://history-service:5001/history/add', attemptData);
-    return { success: true, message: 'Attempt history saved successfully' };
+    await axios.post("http://history-service:5001/history/add", attemptData);
+    return { success: true, message: "Attempt history saved successfully" };
   } catch (error) {
-    console.error('Error saving attempt history:', error);
-    return { success: false, message: 'Error saving attempt history' };
+    console.error("Error saving attempt history:", error);
+    return { success: false, message: "Error saving attempt history" };
   }
 };
 
 // Update attempt history
 const updateAttemptHistory = async (attemptId, updateData) => {
   try {
-    await axios.put(`http://history-service:5001/history/update/${attemptId}`, updateData);
-    return { success: true, message: 'Attempt history updated successfully' };
+    await axios.put(
+      `http://history-service:5001/history/update/${attemptId}`,
+      updateData
+    );
+    return { success: true, message: "Attempt history updated successfully" };
   } catch (error) {
-    console.error('Error updating attempt history:', error);
-    return { success: false, message: 'Error updating attempt history' };
+    console.error("Error updating attempt history:", error);
+    return { success: false, message: "Error updating attempt history" };
   }
 };
 
@@ -91,8 +94,8 @@ app.post("/create-room", async (req, res) => {
       user_ids: participants,
       question_id: question._id,
       first_attempt_date: new Date(),
-      code_contents: '',
-      whiteboard_state: {}
+      code_contents: "",
+      whiteboard_state: {},
     };
     console.log("attemptData", attemptData);
     await saveAttemptHistory(attemptData);
@@ -109,8 +112,6 @@ app.post("/create-room", async (req, res) => {
     return res
       .status(201)
       .json({ message: "Room created", room: newRoom, status: 201 });
-
-      
   } catch (err) {
     return res.status(500).json({
       message: "Error creating room",
@@ -145,10 +146,10 @@ app.get("/active-user/:userId", async (req, res) => {
   // Iterate over all rooms in roomParticipants
   for (const [_, participants] of Object.entries(roomParticipants)) {
     if (participants.includes(userId)) {
-      return res.status(200).json(true);  // Respond with true if active
+      return res.status(200).json(true); // Respond with true if active
     }
   }
-  return res.status(200).json(false);  // Respond with false if not active
+  return res.status(200).json(false); // Respond with false if not active
 });
 
 // Get active session based on username
@@ -170,9 +171,8 @@ app.get("/session/:username", async (req, res) => {
 
     // No active session found for the specified username
     return res.status(404).json({
-      message: "No active session found for the specified user."
+      message: "No active session found for the specified user.",
     });
-
   } catch (error) {
     return res.status(500).json({
       message: "Error retrieving room information",
@@ -180,7 +180,6 @@ app.get("/session/:username", async (req, res) => {
     });
   }
 });
-
 
 // Handle Socket.IO connections
 io.on("connection", (socket) => {
@@ -283,6 +282,27 @@ io.on("connection", (socket) => {
     io.to(roomId).emit("closeWhiteboard");
   });
 
+  socket.on("userLeft", ({ username, roomId }) => {
+    if (roomParticipants[roomId]) {
+      // Remove the user from roomParticipants
+      roomParticipants[roomId] = roomParticipants[roomId].filter(
+        (participant) => participant !== username
+      );
+
+      // Notify other users in the room
+      io.to(roomId).emit("userLeft", { username });
+
+      console.log(`${username} left room: ${roomId}`);
+      console.log("Updated roomParticipants", roomParticipants);
+
+      // If the room becomes empty, clean up
+      if (roomParticipants[roomId].length === 0) {
+        delete roomParticipants[roomId];
+      }
+      console.log("user left", username, roomId);
+    }
+  });
+
   // Handle disconnect
   socket.on("disconnect", (roomId) => {
     console.log("partner left");
@@ -313,14 +333,18 @@ io.on("connection", (socket) => {
         await updateAttemptHistory(roomId, updateData);
         console.log(`Attempt history for room ${roomId} updated successfully.`);
       } catch (error) {
-        console.error(`Error updating attempt history for room ${roomId}:`, error);
+        console.error(
+          `Error updating attempt history for room ${roomId}:`,
+          error
+        );
       }
 
       // Clear room participants list
       delete roomParticipants[roomId];
       io.to(roomId).emit("endSession");
-      console.log(`Session in room ${roomId} has been ended and all users disconnected.`);
+      console.log(
+        `Session in room ${roomId} has been ended and all users disconnected.`
+      );
     }
-});
-
+  });
 });
