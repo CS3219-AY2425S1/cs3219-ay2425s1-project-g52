@@ -1,0 +1,68 @@
+# Define the services and applications that make up PeerPrep G52.
+services:
+  frontend:
+    build: ./frontend # Path to the directory containing the Dockerfile for building the frontend image.
+    ports:
+      - 3000:3000 # Maps port 3000 on the host to port 3000 in the container, making the app accessible on the host.
+    env_file:
+      - ./frontend/.env
+    # volumes: # Not necessarily needed for now
+    # networks: # Not necessarily needed for now
+
+  user-service:
+    build: ./backend/user-service # Path to the directory containing the Dockerfile for building the backend/user-service image.
+    ports:
+      - 3001:3001 # Maps port 3001 on the host to port 3001 in the container, making the app accessible on the host.
+    env_file:
+      - ./backend/user-service/.env
+    # volumes: # Not necessarily needed for now
+    # networks: # Not necessarily needed for now
+
+  question-service:
+    build: ./backend/question-service # Path to the directory containing the Dockerfile for building the backend/question-service image.
+    ports:
+      - 8000:8000 # Maps port 8000 on the host to port 8000 in the container, making the app accessible on the host.
+    env_file:
+      - ./backend/question-service/.env
+    # volumes: # Not necessarily needed for now
+    # networks: # Not necessarily needed for now
+
+  matching-service:
+    build: ./backend/matching-service # Path to the directory containing the Dockerfile for building the backend/question-service image.
+    ports:
+      - 3002:3002
+      - 8080:8080
+    env_file:
+      - ./backend/matching-service/.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "status"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+
+  collaboration-service:
+    build: ./backend/collaboration-service # Path to the directory containing the Dockerfile for building the backend/user-service image.
+    ports:
+      - 4000:4000 # Maps port 3001 on the host to port 3001 in the container, making the app accessible on the host.
+    env_file:
+      - ./backend/collaboration-service/.env
+    # volumes: # Not necessarily needed for now
+    # networks: # Not necessarily needed for now
+
+  history-service:
+    build: ./backend/history-service # Path to the directory containing the Dockerfile for building the backend/user-service image.
+    ports:
+      - 5001:5001 # Maps port 5001 on the host to port 5001 in the container, making the app accessible on the host.
+    env_file:
+      - ./backend/history-service/.env
+    # volumes: # Not necessarily needed for now
+    # networks: # Not necessarily needed for now

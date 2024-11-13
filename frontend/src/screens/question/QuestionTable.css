@@ -1,0 +1,40 @@
+.data-grid .MuiDataGrid-columnHeaders {
+    background-color: white;
+    color: black; /* Header font color */
+}
+  
+.data-grid .MuiDataGrid-cell {
+    color: white; /* Data row font color */
+    white-space: break-spaces;
+    display: flex;
+    align-items: center;
+}
+  
+.data-grid .MuiDataGrid-row {
+    background-color: #1a1a1a; /* Data row background color */
+}
+
+.complexity {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    min-width: 60px; /* Consistent box width */
+    border-radius: 25px;
+    font-weight: bold;
+    padding: 5px 10px;
+    height: 75%;
+}
+
+.complexity-easy {
+    background-color: #4caf50;
+}
+
+.complexity-medium {
+    background-color: #ff9800;
+}
+
+.complexity-hard {
+    background-color: #f44336;
+}

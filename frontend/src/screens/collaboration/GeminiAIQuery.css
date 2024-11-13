@@ -1,0 +1,66 @@
+.genai-input-section {
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-control {
+    min-height: 40px;
+    padding: 10px;
+    margin: 0px 10px;
+    overflow: auto;
+    max-height: 100px;
+    min-width: 50vw;
+    max-width: 75vw; 
+}
+
+.genai-send-btn {
+    padding: 8px 10px;
+    border-radius: 5px;
+    border-style: none;
+    background-color: green;
+    color: white;
+}
+
+.genai-loading-text {
+    color: white;
+    font-size: large;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;;
+}
+
+.genai-error-alert {
+    color: red;
+}
+
+.genai-response-container {
+    max-height: 40vh;
+    max-width: 90vw;
+    overflow: auto;
+}
+
+.genai-user-prompt,
+.genai-response-text {
+    color: white;
+    text-align: justify;
+    margin-top: 25px;
+    padding: 25px;
+    border-radius: 10px;
+    background-color: #000000;
+    overflow-wrap: break-word;
+
+    code {
+        white-space: break-spaces;
+    }
+    
+}
+
+.genai-user-prompt {
+    font-style: italic;
+    background-color: rgb(51, 51, 51);
+}

@@ -1,0 +1,7 @@
+.MuiTablePagination-toolbar, .MuiTablePagination-selectIcon {
+    color: white;
+}
+
+.MuiTablePagination-actions button {
+    color: white;
+}

@@ -1,0 +1,21 @@
+{
+    "name": "matching-service",
+    "version": "1.0.0",
+    "description": "A matching service for user collaboration",
+    "main": "src/server.js",
+    "type": "module",
+    "scripts": {
+        "start": "node src/server.js"
+    },
+    "dependencies": {
+        "amqplib": "^0.8.0",
+        "axios": "^1.7.7",
+        "cors": "^2.8.5",
+        "dotenv": "^16.4.5",
+        "express": "^4.17.1",
+        "mongoose": "^5.12.3",
+        "node-fetch": "^3.3.2",
+        "uuid": "^10.0.0",
+        "ws": "^7.4.6"
+    }
+}

@@ -1,0 +1,13 @@
+/* Disables typing in the pagination size input */
+.ant-select-selection input {
+    pointer-events: none; /* Disables interaction */
+}
+.ant-select-selector {
+    cursor: pointer;
+}  
+.ant-pagination-item-container span[class="ant-pagination-item-ellipsis"] {
+    color: white!important;
+}
+.anticon {
+    color: white;
+}
