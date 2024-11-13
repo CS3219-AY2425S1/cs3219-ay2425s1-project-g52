@@ -127,6 +127,7 @@
   font-size: 14px;
   font-weight: bold;
   color: #fff;
+  background-color: gray;
 }
 
 .difficulty-badge.easy {

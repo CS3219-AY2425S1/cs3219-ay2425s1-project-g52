@@ -83,7 +83,7 @@ const QuestionAttemptPage: React.FC = () => {
               remarkPlugins={[remarkMath]}
               rehypePlugins={[rehypeKatex]}
             >
-              {question.description || 'Error Displaying Question Description...'}
+              {question.description || 'OOPS! Error Displaying Question Description. (Question may have been deleted)'}
             </ReactMarkdown>
           </Box>
         </Typography>

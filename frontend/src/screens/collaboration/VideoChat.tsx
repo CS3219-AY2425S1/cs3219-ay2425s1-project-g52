@@ -128,27 +128,33 @@ const VideoChat: React.FC<VideoChatProps> = ({
     if (!canStartCall) {
       return;
     }
-
+  
     const peer = new Peer(peerId);
-
+  
     peer.on("call", (call: MediaConnection) => {
       const getUserMedia = navigator.mediaDevices.getUserMedia.bind(
         navigator.mediaDevices
       );
-
+  
       getUserMedia({ video: true, audio: true })
         .then((mediaStream) => {
           mediaStreamRef.current = mediaStream;
+  
+          // Set only the video track for the local video element
           if (currentUserVideoRef.current) {
-            currentUserVideoRef.current.srcObject = mediaStream;
-            currentUserVideoRef.current.onloadedmetadata = () => {
-              currentUserVideoRef.current?.play().catch((error) => {
-                console.error("Error playing local video:", error);
-              });
-            };
+            const videoTrack = mediaStream.getVideoTracks()[0];
+            if (videoTrack) {
+              const videoOnlyStream = new MediaStream([videoTrack]);
+              currentUserVideoRef.current.srcObject = videoOnlyStream;
+              currentUserVideoRef.current.onloadedmetadata = () => {
+                currentUserVideoRef.current?.play().catch((error) => {
+                  console.error("Error playing local video:", error);
+                });
+              };
+            }
           }
-
-          call.answer(mediaStream);
+  
+          call.answer(mediaStream); // Answer the call with full media stream
           call.on("stream", (remoteStream) => {
             if (remoteVideoRef.current) {
               remoteVideoRef.current.srcObject = remoteStream;
@@ -164,18 +170,19 @@ const VideoChat: React.FC<VideoChatProps> = ({
           console.error("Error accessing media devices.", error);
         });
     });
-
+  
     peerInstance.current = peer;
     if (username === CALLER) {
       setTimeout(() => {
         initiateCall(remotePeerIdValue);
       }, 2000);
     }
-
+  
     return () => {
       peer.destroy();
     };
   }, [canStartCall, peerId, username, CALLER, remotePeerIdValue]);
+  
 
   const initiateCall = (remotePeerId: string) => {
     const getUserMedia = navigator.mediaDevices.getUserMedia.bind(

@@ -66,7 +66,7 @@ const QuestionHistory: React.FC = () => {
             style={{ color: "blue", cursor: "pointer" }}
             onClick={() => navigate("/questionAttempt", { state: { question: record } })}
           >
-            {text}
+            {text || "Deleted Question"}
           </span>
         </MarkdownTooltip>
       ),
@@ -76,8 +76,8 @@ const QuestionHistory: React.FC = () => {
       dataIndex: "difficulty",
       key: "difficulty",
       render: (difficulty: string) => (
-        <span className={`difficulty-badge ${difficulty.toLowerCase()}`}>
-          {difficulty}
+        <span className={`difficulty-badge ${difficulty?.toLowerCase()}`}>
+          {difficulty || "N.A."}
         </span>
       ),
     },
@@ -85,6 +85,11 @@ const QuestionHistory: React.FC = () => {
       title: "Topic",
       dataIndex: "topic",
       key: "topic",
+      render: (topic: string) => (
+        <span>
+          {topic || "N.A."}
+        </span>
+      ),
     },
     {
       title: "Partner",

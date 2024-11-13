@@ -90,7 +90,7 @@ const LandingPage: React.FC = () => {
         <div className="welcome-section">
           <h1 className="welcome-message">Welcome, {username}</h1>
 
-          <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
+          <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "10px" }}>
             {!hasActiveSession && (
               <button className="start-session-button" onClick={handleStartSession}>
                 Start a Session

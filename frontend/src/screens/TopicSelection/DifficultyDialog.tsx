@@ -70,7 +70,14 @@ const DifficultyDialog: React.FC<{
       fullWidth
     >
       <DialogTitle>
-        <Typography variant="h6" style={{ color: "black" }}>
+        <Typography style={{ 
+          color: "black" ,
+          fontFamily: "Poppins, sans-serif",
+          fontSize: "24px",
+          fontWeight: 600,
+          textAlign: "center",
+          marginTop: "20px",
+          }}>
           Choose Your Difficulty Level
         </Typography>
       </DialogTitle>
